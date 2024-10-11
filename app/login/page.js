@@ -1,9 +1,12 @@
 'use client'
 import axios from "axios";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
+import Cookies from 'js-cookie';
+import { userAgent } from "next/server";
 export default function Login() {
+    const router = useRouter();
     const [Email, SetEmail] = useState("");
     const [Password, SetPassword] = useState("");
     const [Message, SetMessage] = useState("");
@@ -45,9 +48,11 @@ export default function Login() {
                 username: Email,
                 password: Password,
             });
-
+            console.log(response);
             if (response.status === 200) {
                 SetMessage(`Welcome, ${Email}`);
+                Cookies.set("jwt", response.data);
+                router.push("/");
             }
         } catch (e) {
             if (e.response && e.response.status === 401) {

@@ -4,8 +4,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaSpinner } from 'react-icons/fa';
 import Link from 'next/link';
+import getJwtTokenFromCookies from '../components/getTokenFromCookie';
 
-const UpdateFormComponent = ({ FormData, id }) => {
+const CreateFormComponent = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState(-1);
@@ -21,11 +22,11 @@ const UpdateFormComponent = ({ FormData, id }) => {
       setAmount(FormData.amount);
       setStatus(FormData.status);
     }
-  }, [FormData]); // Add FormData as a dependency to reload when it changes
+  }, [FormData]);
 
-  const UpdateHandler = async (e) => {
+  const CreateHandler = async (e) => {
     e.preventDefault();
-    const updatedOrder = {
+    const CreatedOrder = {
       title,
       description,
       priority,
@@ -34,15 +35,20 @@ const UpdateFormComponent = ({ FormData, id }) => {
     };
     SetLoading(true);
     try {
-      let UpdateResponse = await axios.put(`http://localhost:8082/Coffee/id/${FormData.id}`, updatedOrder);
-      if (UpdateResponse.status === 200) {
-        toast.success("Order updated successfully!");
+      let CreateResponse = await axios.post(`http://localhost:8082/Coffee`, CreatedOrder, {
+        headers: {
+          Authorization: `Bearer ${getJwtTokenFromCookies()}`
+        }
+      });
+      console.log(CreateResponse.data)
+      if (CreateResponse.data) {
+        toast.success("Order Created successfully!");
       } else {
-        toast.error("Failed to update order.");
+        toast.error("Failed to Ceate order.");
       }
     } catch (error) {
-      console.error('Error updating order:', error);
-      toast.error("Error updating the order.");
+      console.error('Error Creating order:', error);
+      toast.error("Error Creating the order.");
     } finally {
       SetLoading(false);
     }
@@ -52,11 +58,14 @@ const UpdateFormComponent = ({ FormData, id }) => {
     <>
       <ToastContainer />
       <form
-        className={`max-w-sm mx-auto mt-36 ${Loading ? 'opacity-50 pointer-events-none' : ''}`} // Disable form interaction when loading
+        className={`max-w-sm mx-auto mt-36 ${Loading ? 'opacity-50 pointer-events-none' : ''}`}
+
       >
 
-        <div className='flex flex-col mb-12'><h1 className="font-bold text-center text-2xl">Update Order</h1>
-          <Link href={"/"} className="underline text-red-500 mt-3  text-center text-sm mx-auto">Back To Dashboard</Link></div>
+        <div className='flex flex-col mb-12 gap-y-2'>
+          <h1 className="font-bold  text-center text-2xl">Create Order</h1>
+          <Link href={"/"} className="underline text-red-500  text-center text-sm">Back to Dashboard</Link>
+        </div>
 
         <div className="mb-5">
           <label htmlFor="title" className="block mb-2 text-sm font-medium">
@@ -70,7 +79,7 @@ const UpdateFormComponent = ({ FormData, id }) => {
             className="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             placeholder="Enter title"
             required
-            disabled={Loading} // Disable input during loading
+            disabled={Loading}
           />
         </div>
 
@@ -85,7 +94,7 @@ const UpdateFormComponent = ({ FormData, id }) => {
             className="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             placeholder="Enter description"
             required
-            disabled={Loading} // Disable input during loading
+            disabled={Loading}
           />
         </div>
 
@@ -98,7 +107,7 @@ const UpdateFormComponent = ({ FormData, id }) => {
             value={priority}
             onChange={(e) => setPriority(parseInt(e.target.value))}
             className="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            disabled={Loading} // Disable input during loading
+            disabled={Loading}
           >
             <option value={-1}>Low</option>
             <option value={0}>Medium</option>
@@ -118,7 +127,7 @@ const UpdateFormComponent = ({ FormData, id }) => {
             className="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
             placeholder="Enter amount"
             required
-            disabled={Loading} // Disable input during loading
+            disabled={Loading}
           />
         </div>
 
@@ -131,7 +140,7 @@ const UpdateFormComponent = ({ FormData, id }) => {
             value={status}
             onChange={(e) => setStatus(parseInt(e.target.value))}
             className="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-            disabled={Loading} // Disable input during loading
+            disabled={Loading}
           >
             <option value={0}>Pending</option>
             <option value={1}>Completed</option>
@@ -141,18 +150,17 @@ const UpdateFormComponent = ({ FormData, id }) => {
         </div>
 
         <button
-          type="submit"
-          onClick={UpdateHandler}
+          onClick={CreateHandler}
           className="text-white bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
-          disabled={Loading} // Disable button during loading
+          disabled={Loading}
         >
           {Loading ? (
             <div className="flex items-center justify-center">
               <FaSpinner className="animate-spin mr-2" />
-              Updating...
+              Creating...
             </div>
           ) : (
-            "Update Order"
+            "Create Order"
           )}
         </button>
       </form>
@@ -160,4 +168,4 @@ const UpdateFormComponent = ({ FormData, id }) => {
   );
 };
 
-export default UpdateFormComponent;
+export default CreateFormComponent;

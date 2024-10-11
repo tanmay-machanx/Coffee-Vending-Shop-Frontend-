@@ -4,6 +4,8 @@ import TableComponent from "./components/Table";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import NotFound from "./components/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
+import getJwtTokenFromCookies from "./components/getTokenFromCookie";
 
 export default function Home() {
     const [data, setData] = useState(null);
@@ -11,12 +13,14 @@ export default function Home() {
     useEffect(() => {
         async function fetchOrders() {
             try {
-                console.log(process.env.BASE_URL);
-                const response = await axios.get(`http://localhost:8082/Coffee`);
-                if (response.data) {
-                    setData(response.data);
-                    // console.log(response.data);
-                }
+                const response = await axios.get('http://localhost:8082/Coffee', {
+                    headers: {
+                        Authorization: `Bearer ${getJwtTokenFromCookies()}`,
+                        'Content-Type': 'application/json' // Define the content type
+                    }
+                });
+                setData(response.data);
+                console.log(response);
             } catch (err) {
 
                 console.error("Error fetching data:", err);
@@ -27,8 +31,10 @@ export default function Home() {
 
 
     return (
-        <div>
-            {data ? <TableComponent Data={data} /> : <NotFound />}
-        </div>
+        <ProtectedRoute>
+            <div>
+                {data ? <TableComponent Data={data} /> : <NotFound />}
+            </div>
+        </ProtectedRoute>
     );
 }

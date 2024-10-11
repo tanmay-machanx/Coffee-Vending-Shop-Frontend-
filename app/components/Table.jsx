@@ -8,6 +8,7 @@ import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 
 import 'react-toastify/dist/ReactToastify.css';
+import getJwtTokenFromCookies from "./getTokenFromCookie";
 export default function TableComponent({ Data }) {
   const [Loading, isLoading] = useState(false);
   const [isDataPresent, setIsDataPresent] = useState(true);
@@ -22,7 +23,11 @@ export default function TableComponent({ Data }) {
     try {
       isLoading(true)
       // console.log("Delete HandlerCalled");
-      let DeleteResponse = await axios.delete(`http://localhost:8082/Coffee/id/${id}`);
+      let DeleteResponse = await axios.delete(`http://localhost:8082/Coffee/id/${id}`, {
+        headers: {
+          Authorization: `Bearer ${getJwtTokenFromCookies()}`
+        }
+      });
       console.log(id);
       toast.success(`Item with ${id} Deleted Successfully`);
     } catch (e) {
@@ -111,6 +116,10 @@ export default function TableComponent({ Data }) {
 
         </button>
 
+      </div>
+      <div className='flex flex-col mb-12 gap-y-2'>
+        <h1 className="font-bold  text-center text-2xl">List of All Orders</h1>
+        <Link href={"/create-order"} className="underline text-red-500  text-center text-sm">Create New Order</Link>
       </div>
 
 
